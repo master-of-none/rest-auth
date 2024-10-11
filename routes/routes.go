@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/master-of-none/rest-auth/controller"
 )
 
 func RegisterRoutes(r *gin.Engine) {
@@ -11,4 +12,5 @@ func RegisterRoutes(r *gin.Engine) {
 		})
 	})
 
+	r.POST("/login", controller.LoginCheck)
 }
