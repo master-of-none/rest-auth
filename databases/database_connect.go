@@ -38,7 +38,7 @@ func ConnectDB(c *gin.Context) {
 		}
 	}()
 	var result bson.M
-	if err := client.Database("admin").RunCommand(ctx, bson.D{{Key: "ping", Value: 1}}).Decode(&result); err != nil {
+	if err := client.Database("users").RunCommand(ctx, bson.D{{Key: "ping", Value: 1}}).Decode(&result); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "failed to ping the database",
 			"details": err.Error(),
@@ -46,6 +46,6 @@ func ConnectDB(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Connected Successfully",
+		"message": "Connected Successfully to the users database",
 	})
 }

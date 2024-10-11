@@ -15,4 +15,5 @@ func RegisterRoutes(r *gin.Engine) {
 
 	r.POST("/login", controller.LoginCheck)
 	r.GET("/dbcheck", databases.ConnectDB)
+	// r.POST()
 }
