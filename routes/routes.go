@@ -28,6 +28,6 @@ func RegisterRoutes(r *gin.Engine) {
 		})
 	})
 
-	//? User Register
+	//? User Register ✅
 	r.POST("/register", controller.RegisterUser)
 }

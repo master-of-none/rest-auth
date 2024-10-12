@@ -34,3 +34,5 @@ func ConnectDB(c *gin.Context) *mongo.Client {
 	MongoClient = client
 	return MongoClient
 }
+
+//! TODO Disconnect

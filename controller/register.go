@@ -9,11 +9,11 @@ import (
 	"github.com/master-of-none/rest-auth/databases"
 	"github.com/master-of-none/rest-auth/models"
 	"github.com/master-of-none/rest-auth/utils"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func RegisterUser(ctx *gin.Context) {
-	//! TODO
 	var user models.User
 
 	if err := ctx.ShouldBindJSON(&user); err != nil {
@@ -44,6 +44,24 @@ func RegisterUser(ctx *gin.Context) {
 	ctxMongo, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	//* Check User exists ✅
+	var existingUser models.User
+	err = collection.FindOne(ctxMongo, bson.M{"username": user.Username}).Decode(&existingUser)
+	if err == nil {
+		//? User exists
+		ctx.JSON(http.StatusConflict, gin.H{
+			"error": "Username already exists",
+		})
+		return
+	}
+	if err != mongo.ErrNoDocuments {
+		// Error is another error
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error in checking the existing user",
+			"details": err.Error(),
+		})
+		return
+	}
 	_, err = collection.InsertOne(ctxMongo, user)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
