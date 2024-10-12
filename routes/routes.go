@@ -13,8 +13,8 @@ func RegisterRoutes(r *gin.Engine) {
 		})
 	})
 
+	//! TODO LOGIN
 	r.POST("/login", controller.LoginCheck)
-	//! TODO
 	r.GET("/dbcheck", func(ctx *gin.Context) {
 		client := databases.ConnectDB(ctx)
 
@@ -27,5 +27,7 @@ func RegisterRoutes(r *gin.Engine) {
 			"message": "Database has been connected Successfully",
 		})
 	})
-	// r.POST()
+
+	//? User Register
+	r.POST("/register", controller.RegisterUser)
 }
