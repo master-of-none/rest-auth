@@ -13,7 +13,9 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-func ConnectDB(c *gin.Context) {
+var MongoClient *mongo.Client
+
+func ConnectDB(c *gin.Context) *mongo.Client {
 	uri := os.Getenv("MONGO_URI")
 
 	opts := options.Client().ApplyURI(uri)
@@ -43,9 +45,7 @@ func ConnectDB(c *gin.Context) {
 			"error":   "failed to ping the database",
 			"details": err.Error(),
 		})
-		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Connected Successfully to the users database",
-	})
+	MongoClient = client
+	return MongoClient
 }
