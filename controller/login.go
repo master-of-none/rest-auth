@@ -29,12 +29,17 @@ func LoginCheck(ctx *gin.Context) {
 	ctxMongo, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	err := collection.FindOne(ctxMongo, bson.M{"username": loginRequest.Username, "password": loginRequest.Password}).Decode(&user)
+	//* Have to do Seperate Username and password check because in DB password is hashed.
+	//* So first retreiving the username and checking, then retrieving the password and checking
+
+	//? For username check
+	err := collection.FindOne(ctxMongo, bson.M{"username": loginRequest.Username}).Decode(&user)
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid username or password",
+				"error":   "Invalid Username",
+				"details": err.Error(),
 			})
 		} else {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -44,10 +49,19 @@ func LoginCheck(ctx *gin.Context) {
 		return
 	}
 
+	//? This is for the password check
+	passVal := utils.CheckPasswordHash(loginRequest.Password, user.Password)
+	if !passVal {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Invalid password",
+		})
+		return
+	}
 	token, err := utils.GenerateJWT(user.Username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to generate the token",
+			"error":   "Failed to generate the token",
+			"details": err.Error(),
 		})
 		return
 	}
