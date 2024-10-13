@@ -1,12 +1,10 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/master-of-none/rest-auth/config"
 	"github.com/master-of-none/rest-auth/routes"
 )
@@ -24,12 +22,7 @@ func main() {
 	})
 	routes.RegisterRoutes(r)
 
-	// * Running on Port 8080
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading the Environment File")
-	}
-
+	//! TODO disconnect DB Code
 	port := os.Getenv("PORT")
 	r.Run(port)
 }
