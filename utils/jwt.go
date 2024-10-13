@@ -15,10 +15,10 @@ func GenerateJWT(username string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 
 	//? JWT Token Claims
-	claims := &jwt.StandardClaims{
-		Subject:   username,
-		ExpiresAt: expirationTime.Unix(),
-		IssuedAt:  time.Now().Unix(),
+	claims := &jwt.MapClaims{
+		"sub": username,
+		"exp": expirationTime.Unix(),
+		"iat": time.Now().Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
