@@ -16,12 +16,12 @@ func GenerateJWT(username string) (string, error) {
 
 	//? JWT Token Claims
 	claims := &jwt.MapClaims{
-		"sub": username,
-		"exp": expirationTime.Unix(),
-		"iat": time.Now().Unix(),
+		"username": username,
+		"exp":      expirationTime.Unix(),
+		"iat":      time.Now().Unix(),
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString(jwtSecretKey)
 
