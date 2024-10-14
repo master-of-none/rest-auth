@@ -2,6 +2,7 @@ package databases
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -35,4 +36,14 @@ func ConnectDB(c *gin.Context) *mongo.Client {
 	return MongoClient
 }
 
-//! TODO Disconnect
+// ! TODO Disconnect
+func DisconnectDB(ctx context.Context) {
+	if MongoClient != nil {
+		err := MongoClient.Disconnect(ctx)
+		if err != nil {
+			log.Printf("Error in Disconnecting the database %v", err)
+		} else {
+			log.Println("Succesfully disconnected from the Database")
+		}
+	}
+}
