@@ -50,9 +50,9 @@ Once the API is running, you can interact with the endpoints using tools like Po
     -   **Response:**
 
         ```json
-        `{
-          "message": "Hello Rest World"
-        }`
+        {
+            "message": "Hello Rest World"
+        }
         ```
 
 2.  **POST `/login`**
@@ -61,10 +61,10 @@ Once the API is running, you can interact with the endpoints using tools like Po
     -   **Request Body:**
 
         ```json
-        `{
-          "username": "exampleuser",
-          "password": "password123"
-        }`
+        {
+            "username": "exampleuser",
+            "password": "password123"
+        }
         ```
 
 3.  **GET `/dbcheck`**
@@ -73,9 +73,9 @@ Once the API is running, you can interact with the endpoints using tools like Po
     -   **Response:**
 
         ```json
-        `{
+        {
             "message": "Database has been connected Successfully"
-        }`
+        }
         ```
 
 4.  **POST `/register`**
@@ -84,12 +84,12 @@ Once the API is running, you can interact with the endpoints using tools like Po
 
     **Request Body:**
 
-```json
-{
-    "username": "newuser",
-    "password": "password123"
-}
-```
+    ```json
+    {
+        "username": "newuser",
+        "password": "password123"
+    }
+    ```
 
 ## License
 
