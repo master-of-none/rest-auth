@@ -66,15 +66,16 @@ func LoginCheck(ctx *gin.Context) {
 		return
 	}
 
+	//? Store Token in Cookie
 	ctx.SetSameSite(http.SameSiteLaxMode)
-	ctx.SetCookie("Authorization", token, 3600*24*30, "", "", false, true)
+	ctx.SetCookie("Authorization", token, 3600*2, "", "", false, true)
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Login Successful",
 		"token":   token,
 	})
 
 	//! TODO Middleware
-	//! TODO Store token in DB
 	//! TODO Refresh token
 	//! Link: https://chatgpt.com/share/670c5b50-b1f0-8009-a430-ee84a5fc0698
 }
