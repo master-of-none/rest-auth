@@ -23,10 +23,11 @@
     ```bash
     go mod tidy
     ```
+    - Make sure to set up a .env file to get the values needed to be loaded.
 3. **Set up your MongoDB database:**
 
     - Ensure that you have MongoDB installed and running.
-    - Update the database connection details in the config/config.go file.
+    - Update the database connection details in the .env file.
 
 4. **Run the application:**
 
