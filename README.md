@@ -82,14 +82,14 @@ Once the API is running, you can interact with the endpoints using tools like Po
 
     -   **Description:** This endpoint allows new users to register by providing their username and password. The details are stored in the
 
-    **Request Body:**
+        **Request Body:**
 
-    ```json
-    {
-        "username": "newuser",
-        "password": "password123"
-    }
-    ```
+        ```json
+        {
+            "username": "newuser",
+            "password": "password123"
+        }
+        ```
 
 ## License
 
