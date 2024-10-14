@@ -14,7 +14,7 @@ import (
 )
 
 func LoginCheck(ctx *gin.Context) {
-	//! REDOING LOGIN wiht JWT
+	//! REDOING LOGIN wiht JWT - extra features mentioned in the end
 	var loginRequest models.User
 	var user models.User
 
@@ -70,4 +70,9 @@ func LoginCheck(ctx *gin.Context) {
 		"message": "Login Successful",
 		"token":   token,
 	})
+
+	//! TODO Middleware
+	//! TODO Store token in DB
+	//! TODO Refresh token
+	//! Link: https://chatgpt.com/share/670c5b50-b1f0-8009-a430-ee84a5fc0698
 }
