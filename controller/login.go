@@ -66,6 +66,8 @@ func LoginCheck(ctx *gin.Context) {
 		return
 	}
 
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie("Authorization", token, 3600*24*30, "", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Login Successful",
 		"token":   token,

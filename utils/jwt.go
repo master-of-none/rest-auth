@@ -7,15 +7,13 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecretKey = []byte(os.Getenv("JWT_SECRET"))
-
 //! TODO Generate JWT Key
 
 func GenerateJWT(username string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 
 	//? JWT Token Claims
-	claims := &jwt.MapClaims{
+	claims := jwt.MapClaims{
 		"username": username,
 		"exp":      expirationTime.Unix(),
 		"iat":      time.Now().Unix(),
@@ -23,7 +21,7 @@ func GenerateJWT(username string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(jwtSecretKey)
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 
 	if err != nil {
 		return "", err

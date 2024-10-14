@@ -1,9 +1,12 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/master-of-none/rest-auth/controller"
 	"github.com/master-of-none/rest-auth/databases"
+	"github.com/master-of-none/rest-auth/middleware"
 )
 
 func RegisterRoutes(r *gin.Engine) {
@@ -14,7 +17,6 @@ func RegisterRoutes(r *gin.Engine) {
 	})
 
 	//! TODO LOGIN
-	r.POST("/login", controller.LoginCheck)
 	r.GET("/dbcheck", func(ctx *gin.Context) {
 		client := databases.ConnectDB(ctx)
 
@@ -27,7 +29,17 @@ func RegisterRoutes(r *gin.Engine) {
 			"message": "Database has been connected Successfully",
 		})
 	})
-
 	//? User Register ✅
 	r.POST("/register", controller.RegisterUser)
+	//* Middleware route
+	protectedRoute := r.Group("/protected")
+	protectedRoute.Use(middleware.AuthMiddleWare())
+	{
+		protectedRoute.GET("/dashboard", func(ctx *gin.Context) {
+			ctx.JSON(http.StatusOK, gin.H{
+				"message": "Welcome to the protected Dashboard",
+			})
+		})
+	}
+	r.POST("/login", controller.LoginCheck)
 }
