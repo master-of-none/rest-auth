@@ -10,7 +10,7 @@ import (
 //! TODO Generate JWT Key
 
 func GenerateJWT(username string) (string, error) {
-	expirationTime := time.Now().Add(2 * time.Hour)
+	expirationTime := time.Now().Add(30 * time.Second)
 
 	//? JWT Token Claims
 	claims := jwt.MapClaims{
@@ -28,4 +28,40 @@ func GenerateJWT(username string) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func GenerateRefreshToken(username string) (string, error) {
+	expirationTime := time.Now().Add(2 * time.Minute)
+
+	claims := jwt.MapClaims{
+		"username": username,
+		"exp":      expirationTime.Unix(),
+	}
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	refreshTokenString, err := refreshToken.SignedString([]byte(os.Getenv("JWT_SECRET")))
+
+	if err != nil {
+		return "", err
+	}
+
+	return refreshTokenString, nil
+}
+
+func GenerateNewAccessToken(refreshToken *jwt.Token) (string, error) {
+	claims, ok := refreshToken.Claims.(jwt.MapClaims)
+	if !ok || !refreshToken.Valid {
+		return "", jwt.ErrInvalidKey
+	}
+	expirationTime := time.Now().Add(45 * time.Second)
+	newClaims := jwt.MapClaims{
+		"username": claims["username"],
+		"exp":      expirationTime.Unix(),
+	}
+	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, newClaims)
+	newTokenString, err := newToken.SignedString([]byte(os.Getenv("JWT_SECRET")))
+
+	if err != nil {
+		return "", err
+	}
+	return newTokenString, nil
 }

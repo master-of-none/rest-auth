@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/master-of-none/rest-auth/databases"
 	"github.com/master-of-none/rest-auth/models"
 	"github.com/master-of-none/rest-auth/utils"
@@ -14,7 +15,6 @@ import (
 )
 
 func LoginCheck(ctx *gin.Context) {
-	//! REDOING LOGIN wiht JWT - extra features mentioned in the end
 	var loginRequest models.User
 	var user models.User
 
@@ -76,7 +76,6 @@ func LoginCheck(ctx *gin.Context) {
 		})
 		return
 	}
-	//! TODO: Generate Refresh Token
 	refreshToken, err := utils.GenerateRefreshToken(user.Username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -97,8 +96,6 @@ func LoginCheck(ctx *gin.Context) {
 		"token":        token,
 		"refreshToken": refreshToken,
 	})
-
-	//! TODO Refresh token
 	//! Link: https://chatgpt.com/share/670c5b50-b1f0-8009-a430-ee84a5fc0698
 }
 
@@ -114,15 +111,24 @@ func RefreshToken(ctx *gin.Context) {
 	}
 
 	// Validate Refresh Token
-	username, err := utils.ValidateRefreshToken(refreshToken)
-	if err != nil {
+	token, err := utils.ValidateToken(refreshToken)
+	if err != nil || !token.Valid {
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"error":   "Invalid or expired Refresh Token",
 			"details": err.Error(),
 		})
 		return
 	}
-	newToken, err := utils.GenerateJWT(username)
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Could not validate the token",
+		})
+		return
+	}
+	username := claims["username"].(string)
+
+	newToken, err := utils.GenerateNewAccessToken(token)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Cannot generate new token",
@@ -135,12 +141,8 @@ func RefreshToken(ctx *gin.Context) {
 	ctx.SetCookie("Authorization", newToken, 3600*2, "", "", false, true)
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"message":  "New Access token generated successfully",
-		"newToken": newToken,
+		"username":       username,
+		"message":        "New Access token generated successfully",
+		"newAccessToken": newToken,
 	})
 }
-
-//! TODO:
-//! Add Generate Refresh Token in utils
-//! Add Validate token - make a function, call in middleware
-//! Add a route in routes

@@ -8,7 +8,7 @@ import (
 
 func Logout(ctx *gin.Context) {
 	ctx.SetCookie("Authorization", "", -1, "", "", false, true)
-
+	ctx.SetCookie("RefreshToken", "", -1, "", "", false, true)
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Logout Successful",
 	})

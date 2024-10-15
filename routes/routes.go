@@ -16,7 +16,6 @@ func RegisterRoutes(r *gin.Engine) {
 		})
 	})
 
-	//! TODO LOGIN
 	r.GET("/dbcheck", func(ctx *gin.Context) {
 		client := databases.ConnectDB(ctx)
 
@@ -43,4 +42,5 @@ func RegisterRoutes(r *gin.Engine) {
 	}
 	r.POST("/login", controller.LoginCheck)
 	r.POST("/logout", controller.Logout)
+	r.POST("/refreshToken", controller.RefreshToken)
 }

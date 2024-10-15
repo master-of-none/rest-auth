@@ -3,10 +3,9 @@ package middleware
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/master-of-none/rest-auth/utils"
 )
 
 //! TODO - Implement MiddleWare
@@ -14,51 +13,57 @@ import (
 func AuthMiddleWare() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		//* Get the JWT Token
-		// authHeader := ctx.GetHeader("Authorization")
-
-		// if authHeader == "" {
-		// 	ctx.JSON(http.StatusUnauthorized, gin.H{
-		// 		"error": "Authorization Header is missing",
-		// 	})
-		// 	ctx.Abort()
-		// 	return
-		// }
-
-		// tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-		// if tokenString == authHeader {
-		// 	ctx.JSON(http.StatusUnauthorized, gin.H{
-		// 		"error": "Invalid Token Format",
-		// 	})
-		// 	ctx.Abort()
-		// 	return
-		// }
-		// fmt.Println(tokenString)
 		tokenString, err := ctx.Cookie("Authorization")
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Invalid Token format",
+				"error": "Invalid or expired Auth Token",
 			})
 			ctx.Abort()
 			return
 		}
-		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
-			}
-			return []byte(os.Getenv("JWT_SECRET")), nil
-		})
-
+		token, err := utils.ValidateToken(tokenString)
 		if err != nil || !token.Valid {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error":   "Invalid or expired token",
-				"details": err.Error(),
-			})
-			ctx.Abort()
-			return
-		}
+			fmt.Println(err.Error())
+			refreshTokenString, refreshErr := ctx.Cookie("RefreshToken")
+			if refreshErr != nil {
+				ctx.JSON(http.StatusUnauthorized, gin.H{
+					"error":   "Invalid or expired Refresh token",
+					"details": err.Error(),
+				})
+				ctx.Abort()
+				return
+			}
 
-		//! TODO: Validate Refresh Token
-		//!
+			refreshTokenString, err := ctx.Cookie("RefreshToken")
+			if err != nil {
+				ctx.JSON(http.StatusUnauthorized, gin.H{
+					"error": "Invalid Token format",
+				})
+				ctx.Abort()
+				return
+			}
+			refreshToken, err := utils.ValidateToken(refreshTokenString)
+			if err != nil || !refreshToken.Valid {
+				ctx.JSON(http.StatusUnauthorized, gin.H{
+					"error":   "Invalid or expired Refresh token",
+					"details": err.Error(),
+				})
+				ctx.Abort()
+				return
+			}
+
+			newToken, newTokenErr := utils.GenerateNewAccessToken(refreshToken)
+			if newTokenErr != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"error":   "Failed to generate new access Token",
+					"message": newTokenErr.Error(),
+				})
+				ctx.Abort()
+				return
+			}
+			ctx.SetCookie("Authorization", newToken, 3600, "", "", false, true)
+			fmt.Println("New Access Token set since old expired")
+		}
 		ctx.Next()
 	}
 }
