@@ -110,10 +110,9 @@ Once the API is running, you can interact with the endpoints using tools like Po
 
         ```json
         {
-            "username":       username,
-            "message":        "New Access token generated successfully",
-            "newAccessToken": newToken,
-
+            "username": "username",
+            "message": "New Access token generated successfully",
+            "newAccessToken": "newToken"
         }
         ```
 
