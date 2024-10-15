@@ -94,6 +94,29 @@ Once the API is running, you can interact with the endpoints using tools like Po
         }
         ```
 
+5.  **GET `/protected/dashboard`**
+    -   **Description:** This endpoint is protected by JWT authentication. It returns a success message if the user is authenticated.
+    -   **Response:**
+        ```json
+        {
+            "message": "Welcome to the dashboard"
+        }
+        ```
+6.  **POST `/refreshToken`**
+
+    -   **Description:** This endpoint allows users to refresh their JWT token set from the Cookie since the tokens are stored in Cookie.
+        New access Token is generated from the refresh token which is not expired and it is set in the cookie. If refresh token is expired it will not generate new access token.
+    -   **Response:**
+
+        ```json
+        {
+            "username":       username,
+            "message":        "New Access token generated successfully",
+            "newAccessToken": newToken,
+
+        }
+        ```
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
