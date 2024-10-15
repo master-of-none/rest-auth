@@ -76,17 +76,71 @@ func LoginCheck(ctx *gin.Context) {
 		})
 		return
 	}
+	//! TODO: Generate Refresh Token
+	refreshToken, err := utils.GenerateRefreshToken(user.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Failed to generate Refresh Token",
+			"details": err.Error(),
+		})
+		return
+	}
 
-	//? Store Token in Cookie
+	//* Store Tokens in Cookie
 	ctx.SetSameSite(http.SameSiteLaxMode)
-	ctx.SetCookie("Authorization", token, 3600*2, "", "", false, true)
+	ctx.SetCookie("Authorization", token, 3600*2, "", "", false, true) // 2 hours
 
+	//? Store Refresh Token
+	ctx.SetCookie("RefreshToken", refreshToken, 3600*24*7, "", "", false, true) // 7 days
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Login Successful",
-		"token":   token,
+		"message":      "Login Successful",
+		"token":        token,
+		"refreshToken": refreshToken,
 	})
 
-	//! TODO Middleware
 	//! TODO Refresh token
 	//! Link: https://chatgpt.com/share/670c5b50-b1f0-8009-a430-ee84a5fc0698
 }
+
+func RefreshToken(ctx *gin.Context) {
+	refreshToken, err := ctx.Cookie("RefreshToken")
+
+	if err != nil || refreshToken == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "No Refresh Token provided",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	// Validate Refresh Token
+	username, err := utils.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "Invalid or expired Refresh Token",
+			"details": err.Error(),
+		})
+		return
+	}
+	newToken, err := utils.GenerateJWT(username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Cannot generate new token",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie("Authorization", newToken, 3600*2, "", "", false, true)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message":  "New Access token generated successfully",
+		"newToken": newToken,
+	})
+}
+
+//! TODO:
+//! Add Generate Refresh Token in utils
+//! Add Validate token - make a function, call in middleware
+//! Add a route in routes
