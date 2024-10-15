@@ -58,12 +58,13 @@ Once the API is running, you can interact with the endpoints using tools like Po
 
 2.  **POST `/login`**
 
-    -   **Description:** This endpoint allows users to log in by providing their credentials (username and password). It checks the provided credentials against the database and returns a JWT token if the credentials are valid.
+    -   **Description:** This endpoint allows users to log in by providing their credentials (username or email and password). It checks the provided credentials against the database and returns a JWT token if the credentials are valid. User can provide email or username to login.
     -   **Request Body:**
 
         ```json
         {
             "username": "exampleuser",
+            "email": "example@mail.com",
             "password": "password123"
         }
         ```
@@ -88,6 +89,7 @@ Once the API is running, you can interact with the endpoints using tools like Po
         ```json
         {
             "username": "newuser",
+            "email": "example@mail.com",
             "password": "password123"
         }
         ```
