@@ -8,8 +8,6 @@ import (
 	"github.com/master-of-none/rest-auth/utils"
 )
 
-//! TODO - Implement MiddleWare
-
 func AuthMiddleWare() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		//* Get the JWT Token
