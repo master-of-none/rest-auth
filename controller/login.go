@@ -32,13 +32,24 @@ func LoginCheck(ctx *gin.Context) {
 	//* Have to do Seperate Username and password check because in DB password is hashed.
 	//* So first retreiving the username and checking, then retrieving the password and checking
 
+	var filter bson.M
+	if loginRequest.Username != "" {
+		filter = bson.M{"username": loginRequest.Username}
+	} else if loginRequest.Email != "" {
+		filter = bson.M{"email": loginRequest.Email}
+	} else {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "Username or Email must be provided",
+		})
+		return
+	}
 	//? For username check
-	err := collection.FindOne(ctxMongo, bson.M{"username": loginRequest.Username}).Decode(&user)
+	err := collection.FindOne(ctxMongo, filter).Decode(&user)
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error":   "Invalid Username",
+				"error":   "Invalid Username or Email",
 				"details": err.Error(),
 			})
 		} else {
