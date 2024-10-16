@@ -36,7 +36,8 @@ func RegisterRoutes(r *gin.Engine) {
 	{
 		protectedRoute.GET("/dashboard", func(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, gin.H{
-				"message": "Welcome to the protected Dashboard",
+				"message":  "Welcome to the protected Dashboard",
+				"username": ctx.GetString("username"),
 			})
 		})
 	}

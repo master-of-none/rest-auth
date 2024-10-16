@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/master-of-none/rest-auth/utils"
 )
 
@@ -62,6 +63,16 @@ func AuthMiddleWare() gin.HandlerFunc {
 			ctx.SetCookie("Authorization", newToken, 3600, "", "", false, true)
 			fmt.Println("New Access Token set since old expired")
 		}
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok || !token.Valid {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Could not validate the token",
+			})
+			return
+		}
+
+		ctx.Set("username", claims["username"].(string))
+
 		ctx.Next()
 	}
 }
