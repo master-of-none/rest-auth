@@ -69,9 +69,18 @@ func AuthMiddleWare() gin.HandlerFunc {
 				"error": "Could not validate the token",
 			})
 			return
+		} else {
+			if username, exists := claims["username"].(string); exists {
+				ctx.Set("username", username)
+			} else {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"error": "Username does not exist",
+				})
+				return
+			}
 		}
 
-		ctx.Set("username", claims["username"].(string))
+		// ctx.Set("username", claims["username"].(string))
 
 		ctx.Next()
 	}

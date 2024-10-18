@@ -10,7 +10,7 @@ import (
 //! TODO Generate JWT Key
 
 func GenerateJWT(username string) (string, error) {
-	expirationTime := time.Now().Add(30 * time.Second)
+	expirationTime := time.Now().Add(5 * time.Minute)
 
 	//? JWT Token Claims
 	claims := jwt.MapClaims{
@@ -31,7 +31,7 @@ func GenerateJWT(username string) (string, error) {
 }
 
 func GenerateRefreshToken(username string) (string, error) {
-	expirationTime := time.Now().Add(2 * time.Minute)
+	expirationTime := time.Now().Add(10 * time.Minute)
 
 	claims := jwt.MapClaims{
 		"username": username,

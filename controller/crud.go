@@ -15,6 +15,32 @@ import (
 // ! Create Post
 func CreatePost(ctx *gin.Context) {
 	// ! TODO
+	var post models.Post
+	if err := ctx.BindJSON(&post); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid Data",
+			"details": err.Error(),
+		})
+		return
+	}
+	post.Author = ctx.GetString("username")
+	var MongoClient *mongo.Client = databases.ConnectDB(ctx)
+	collection := MongoClient.Database("users").Collection("posts")
+	ctxMongo, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := collection.InsertOne(ctxMongo, post)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error in creating the Post",
+			"details": err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "Post Created Successfully",
+		"post":    post,
+	})
 }
 
 // ! Get Posts
