@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +11,7 @@ import (
 	"github.com/master-of-none/rest-auth/models"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 // ! Create Post
@@ -93,9 +95,89 @@ func GetPosts(ctx *gin.Context) {
 // ! Update posts
 func UpdatePost(ctx *gin.Context) {
 	//! TODO
+	postID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid Post ID",
+			"details": err.Error(),
+		})
+		return
+	}
+	var MongoClient *mongo.Client = databases.ConnectDB(ctx)
+	collection := MongoClient.Database("users").Collection("posts")
+	ctxMongo, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var existingPost bson.M
+	err = collection.FindOne(ctxMongo, bson.M{"id": postID}).Decode(&existingPost)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"Error":   "Post Not found",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	var post models.Post
+	if err = ctx.BindJSON(&post); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"Error":   "Invalid Data",
+			"details": err.Error(),
+		})
+		return
+	}
+	filter := bson.M{"id": postID}
+	update := bson.M{"$set": bson.M{"title": post.Title, "content": post.Content}}
+
+	_, err = collection.UpdateOne(ctxMongo, filter, update, options.Update().SetUpsert(false))
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Cannot Update the value",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Post has been successfully updated",
+	})
 }
 
 // ! Delete Post
 func DeletePost(ctx *gin.Context) {
 	//! TODO
+	postID, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid Post ID",
+			"details": err.Error(),
+		})
+		return
+	}
+	var MongoClient *mongo.Client = databases.ConnectDB(ctx)
+	collection := MongoClient.Database("users").Collection("posts")
+	ctxMongo, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var existingPost bson.M
+	err = collection.FindOne(ctxMongo, bson.M{"id": postID}).Decode(&existingPost)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"Error":   "Post Not found",
+			"details": err.Error(),
+		})
+		return
+	}
+	_, err = collection.DeleteOne(ctxMongo, bson.M{"id": postID})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"Error":   "Error in deleting the post",
+			"details": err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusAccepted, gin.H{
+		"message": "Post successfully deleted",
+	})
 }
