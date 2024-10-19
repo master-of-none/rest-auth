@@ -23,6 +23,16 @@ func CreatePost(ctx *gin.Context) {
 		})
 		return
 	}
+	nextId, errID := databases.GetNextSequence("postid", ctx)
+	if errID != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Error in generating post ID",
+			"details": errID.Error(),
+		})
+		return
+	}
+
+	post.ID = nextId
 	post.Author = ctx.GetString("username")
 	var MongoClient *mongo.Client = databases.ConnectDB(ctx)
 	collection := MongoClient.Database("users").Collection("posts")
