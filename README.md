@@ -28,6 +28,18 @@
 
     - Ensure that you have MongoDB installed and running.
     - Update the database connection details in the .env file.
+    - Set up a collection named counters in the database to store the user ID counter sequentially.
+
+        ```bash
+            use yourDatabaseName
+        ```
+
+        ```bash
+            db.counters.insertOne({
+                _id: "postid",
+                sequence_value: 0
+            })
+        ```
 
 4. **Run the application:**
 
@@ -113,6 +125,65 @@ Once the API is running, you can interact with the endpoints using tools like Po
             "username": "username",
             "message": "New Access token generated successfully",
             "newAccessToken": "newToken"
+        }
+        ```
+
+### Post Routes
+
+-   These endpoints are used to manage posts. All routes under /posts are protected by JWT authentication and require a valid token.
+
+1.  **POST `/posts`**
+
+    -   **Description:** This endpoint allows users to create a new post. The post is stored in the database and associated with the user who created it.
+    -   **Request Body:**
+
+        ```json
+        {
+            "title": "Post Title",
+            "content": "Post Content"
+        }
+        ```
+
+2.  **GET `/posts`**
+
+    -   **Description:** This endpoint returns all posts created by the user.
+    -   **Response:**
+
+        ```json
+        [
+            {
+                "id": "postId1",
+                "title": "Post Title 1",
+                "content": "Content of post 1"
+            },
+            {
+                "id": "postId2",
+                "title": "Post Title 2",
+                "content": "Content of post 2"
+            }
+        ]
+        ```
+
+3.  **PUT `/posts/:id`**
+
+    -   **Description:** This endpoint allows users to update a post by providing the post ID. The updated post details are stored in the database.
+    -   **Request Body:**
+
+        ```json
+        {
+            "title": "Updated Post Title",
+            "content": "Updated Post Content"
+        }
+        ```
+
+4.  **DELETE `/posts/:id`**
+
+    -   **Description:** This endpoint allows users to delete a post by providing the post ID. The post is removed from the database.
+    -   **Response:**
+
+        ```json
+        {
+            "message": "Post deleted successfully"
         }
         ```
 
