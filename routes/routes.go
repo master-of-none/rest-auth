@@ -44,4 +44,5 @@ func RegisterRoutes(r *gin.Engine) {
 	r.POST("/login", controller.LoginCheck)
 	r.POST("/logout", controller.Logout)
 	r.POST("/refreshToken", controller.RefreshToken)
+	PostRoutes(r)
 }
