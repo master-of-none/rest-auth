@@ -1,0 +1,23 @@
+services:
+    api:
+        build: .
+        container_name: rest-auth
+        ports:
+            - "8080:8080"
+        env_file:
+            - .env
+        volumes:
+            - ./.env:/app/.env # Using this, because it works. Normally, I would use env_file but it wasnt working as desired/
+        depends_on:
+            - mongo
+
+    mongo:
+        image: mongo:latest
+        container_name: mongo
+        volumes:
+            - mongo-data:/data/db
+        ports:
+            - "27017:27017"
+
+volumes:
+    mongo-data:
