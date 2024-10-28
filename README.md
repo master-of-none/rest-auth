@@ -128,6 +128,15 @@ Once the API is running, you can interact with the endpoints using tools like Po
         }
         ```
 
+7.  **DELETE /admin/delete/:id**
+    -   **Description:** This endpoint allows the admin to delete the user by providing the user ID. The user is removed from the database.
+    -   **Response:**
+        ```json
+        {
+            "message": "User deleted successfully"
+        }
+        ```
+
 ### Post Routes
 
 -   These endpoints are used to manage posts. All routes under /posts are protected by JWT authentication and require a valid token.
