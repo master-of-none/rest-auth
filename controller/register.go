@@ -23,6 +23,15 @@ func RegisterUser(ctx *gin.Context) {
 		return
 	}
 
+	//! Check for Invalid User Role
+	if user.Role != "admin" || user.Role != "user" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "Invalid user Role",
+			"message": "User role must be admin or user",
+		})
+		return
+	}
+
 	//! TODO ADMIN User check RBAC
 	if user.Role == "admin" {
 		var MongoClientAdmin *mongo.Client = databases.ConnectDB(ctx)
