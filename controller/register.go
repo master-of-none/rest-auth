@@ -23,6 +23,31 @@ func RegisterUser(ctx *gin.Context) {
 		return
 	}
 
+	//! TODO ADMIN User check RBAC
+	if user.Role == "admin" {
+		var MongoClientAdmin *mongo.Client = databases.ConnectDB(ctx)
+		collection := MongoClientAdmin.Database("users").Collection("user_info")
+		ctxMongo, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		var exisitingAdmin models.User
+		err := collection.FindOne(ctxMongo, bson.M{"role": "admin"}).Decode(&exisitingAdmin)
+		if err == nil {
+			//? Already an existing user
+			ctx.JSON(http.StatusConflict, gin.H{
+				"error": "Already there is an admin user",
+			})
+			return
+		}
+
+		if err != mongo.ErrNoDocuments {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "Error in checking the existing user",
+				"details": err.Error(),
+			})
+			return
+		}
+	}
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
