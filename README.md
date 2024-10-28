@@ -196,6 +196,15 @@ Once the API is running, you can interact with the endpoints using tools like Po
         }
         ```
 
+## Docker
+
+The API is now dockerized. First make sure the docker is installed and is up running. Add the .env file else it will give an error. Finally, it can be run using the following commands:
+
+```bash
+    docker-compose build
+    docker-compose up
+```
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
